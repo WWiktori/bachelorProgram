@@ -135,15 +135,39 @@ for idx, (start_date, end_date, label) in enumerate(periods):
 # --- Візуалізація ---
 
 # 1. Графік параметрів по періодах
-plt.figure(figsize=(12, 6))
+
+# 1. Графік параметрів по періодам (всі 4 параметри у вигляді стовпчиків)
+plt.figure(figsize=(14, 7))
 params_df = pd.DataFrame([{**{'Період': r['Період']}, **r['Параметри']} for r in results])
-params_df.plot(x='Період', y=['β', 'σ', 'γ'], kind='bar', ax=plt.gca())
-plt.title('Оптимальні параметри моделі по періодах')
-plt.ylabel('Значення параметру')
-plt.grid(True)
+
+# Створюємо графік
+x = np.arange(len(params_df))
+width = 0.2  # Ширина стовпчиків
+
+# Малюємо стовпчики для кожного параметра
+plt.bar(x - 1.5*width, params_df['β'], width, label='β (контактна швидкість)', color='tab:blue')
+plt.bar(x - 0.5*width, params_df['σ'], width, label='σ (інкубаційна)', color='tab:orange')
+plt.bar(x + 0.5*width, params_df['γ'], width, label='γ (одужання)', color='tab:green')
+plt.bar(x + 1.5*width, params_df['f'], width, label='f (летальність)', color='tab:red')
+
+# Налаштування графіка
+plt.title('Оптимальні параметри моделі по періодам', fontsize=14)
+plt.xlabel('Період', fontsize=12)
+plt.ylabel('Значення параметру', fontsize=12)
+plt.xticks(x, params_df['Період'])
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.legend(fontsize=10)
+
+# Додаткові підписи значень на стовпчиках
+for i in x:
+    for j, param in enumerate(['β', 'σ', 'γ', 'f']):
+        value = params_df.loc[i, param]
+        offset = width * (j - 1.5)
+        plt.text(i + offset, value + 0.01, f'{value:.3f}', 
+                ha='center', va='bottom', fontsize=8, rotation=90)
+
 plt.tight_layout()
 plt.show()
-
 # 2. Графік прогнозу vs реальних значень для всіх періодів
 plt.figure(figsize=(12, 6))
 for r in results:
